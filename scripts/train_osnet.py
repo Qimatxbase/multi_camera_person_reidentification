@@ -134,7 +134,7 @@ def main():
             super().__init__(splits["train"], splits["query"], splits["gallery"], **kwargs)
 
     cfg = get_cfg()
-    cfg.merge_from_file(str(ROOT / "configs" / "mevid_osnet.yml"))
+    cfg.merge_from_file(str(ROOT / "configs" / "mevid_osnet_baseline.yml"))
     cfg.merge_from_list(args.opts)
     if args.epochs is not None:
         cfg.SOLVER.MAX_EPOCH = args.epochs
@@ -164,7 +164,7 @@ def main():
 
         data_build.DataLoaderX = cpu_loader
     cfg.freeze()
-    args.config_file = str(ROOT / "configs" / "mevid_osnet.yml")
+    args.config_file = str(ROOT / "configs" / "mevid_osnet_baseline.yml")
     args.eval_only = False
     default_setup(cfg, args)
     trainer = OSNetTrainer(cfg)

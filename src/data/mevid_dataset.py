@@ -60,6 +60,9 @@ class MEVID(ImageDataset):
         if not self.annotation_dir.exists():
             logger.warning(f"Annotation dir not found: {self.annotation_dir}. Dataset is empty.")
             return
+            
+        if not self.train_dir.exists() or not self.test_dir.exists():
+            raise FileNotFoundError(f"Missing train or test directory! Please make sure {self.train_dir} and {self.test_dir} are extracted.")
 
         train_names = self._read_lines(self.annotation_dir / "train_name.txt")
         test_names = self._read_lines(self.annotation_dir / "test_name.txt")
@@ -191,3 +194,108 @@ class MEVID_Sample(MEVID):
             
         logger.info(f"Sample loaded: {len(self.train_data)} train, {len(self.query_data)} query, {len(self.gallery_data)} gallery")
 
+
+@DATASET_REGISTRY.register()
+class MEVID_Mini(ImageDataset):
+    """
+    Bullet-proof dataloader for the shrunk MEVID_Sample_Dataset.
+    OPTIMIZED: Uses memory sets to bypass slow filesystem checks!
+    CORRECTED: Uses exact 1-based indexing logic from original MEVID.
+    """
+    def __init__(self, root='datasets', **kwargs):
+        # We handle Kaggle input paths automatically, or fallback to relative
+        if os.path.exists("/kaggle/input/datasets/quangnguyen97/mevid-sample/MEVID_Sample_Dataset"):
+            self.dataset_dir = "/kaggle/input/datasets/quangnguyen97/mevid-sample/MEVID_Sample_Dataset"
+        else:
+            self.dataset_dir = os.path.join(root, "MEVID_Sample_Dataset")
+            
+        self.train_dir = os.path.join(self.dataset_dir, 'bbox_train')
+        self.test_dir = os.path.join(self.dataset_dir, 'bbox_test')
+        self.anno_dir = os.path.join(self.dataset_dir, 'mevid-v1-annotation-data')
+        
+        self.pid_map = {}
+        train_items = self._process_dir("train")
+        query_items, gallery_items = self._process_test()
+        
+        super(MEVID_Mini, self).__init__(train_items, query_items, gallery_items, **kwargs)
+
+    def _process_dir(self, split):
+        img_dir = self.train_dir if split == "train" else self.test_dir
+        items = []
+        
+        if not os.path.exists(img_dir):
+            return items
+            
+        # Traverse every subfolder, but IGNORE the folder name for labels!
+        for subfolder in sorted(os.listdir(img_dir)):
+            sub_path = os.path.join(img_dir, subfolder)
+            if not os.path.isdir(sub_path): 
+                continue
+            
+            for img_name in os.listdir(sub_path):
+                if not img_name.endswith('.jpg'): 
+                    continue
+                img_path = os.path.join(sub_path, img_name)
+                
+                # The ultimate source of truth: The MEVID Filename (e.g., 0201O003C330...)
+                try:
+                    # Extract PID from the very beginning of the filename (before the 'O')
+                    true_pid_str = img_name.split('O')[0]
+                    true_pid = int(true_pid_str)
+                    
+                    # Extract Camera ID
+                    cid = int(img_name.split('C')[1].split('T')[0])
+                except:
+                    # If the filename format is broken, skip this image to prevent poisoning the training
+                    continue
+                
+                # Map the true PID to 0, 1, 2... for PyTorch
+                if true_pid not in self.pid_map:
+                    self.pid_map[true_pid] = len(self.pid_map)
+                mapped_pid = self.pid_map[true_pid]
+                    
+                items.append((img_path, mapped_pid, cid))
+                
+        return items
+        
+    def _process_test(self):
+        track_info_file = os.path.join(self.anno_dir, 'track_test_info.txt')
+        name_file = os.path.join(self.anno_dir, 'test_name.txt')
+        query_idx_file = os.path.join(self.anno_dir, 'query_IDX.txt')
+        
+        with open(track_info_file, 'r') as f:
+            track_lines = f.read().splitlines()
+        with open(name_file, 'r') as f:
+            name_lines = f.read().splitlines()
+        with open(query_idx_file, 'r') as f:
+            query_indices = set([int(float(x)) for x in f.read().splitlines()])
+            
+        existing_files = set()
+        if os.path.exists(self.test_dir):
+            for r, _, files in os.walk(self.test_dir):
+                for f in files:
+                    existing_files.add(f)
+        
+        query_items = []
+        gallery_items = []
+        
+        for row_idx, line in enumerate(track_lines):
+            parts = line.split()
+            if len(parts) != 5: continue
+            
+            start_idx, end_idx, pid, oid, cid = [int(float(x)) for x in parts]
+            
+            for i in range(start_idx, end_idx + 1):
+                idx = i - 1 if start_idx > 0 else i
+                if idx < 0 or idx >= len(name_lines): continue
+                
+                img_name = name_lines[idx]
+                
+                if img_name in existing_files:
+                    img_path = os.path.join(self.test_dir, f'{pid:04d}', img_name)
+                    if row_idx in query_indices:
+                        query_items.append((img_path, pid, cid))
+                    else:
+                        gallery_items.append((img_path, pid, cid))
+                        
+        return query_items, gallery_items

@@ -1,0 +1,30 @@
+_BASE_: "Base-bagtricks.yml"
+
+DATASETS:
+  NAMES: ("MEVID_OSNet",)
+  TESTS: ("MEVID_OSNet",)
+
+MODEL:
+  DEVICE: "cpu"
+  BACKBONE:
+    NAME: "build_osnet_backbone"
+    DEPTH: "x1_0"
+    FEAT_DIM: 512
+    PRETRAIN: true
+    WITH_IBN: false
+    PRETRAIN_PATH: ""
+  HEADS:
+    EMBEDDING_DIM: 512
+
+SOLVER:
+  MAX_EPOCH: 60
+  BASE_LR: 0.00035
+  OPT: "Adam"
+  IMS_PER_BATCH: 64
+  STEPS: [40, 55]
+  CHECKPOINT_PERIOD: 1
+
+DATALOADER:
+  NUM_WORKERS: 0
+
+OUTPUT_DIR: "results/osnet"

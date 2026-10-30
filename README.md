@@ -1,64 +1,35 @@
-# Multi-Camera Person Re-Identification with Cross-Outfit Evaluation
+# Multi-Camera Person Re-Identification
 
-Query-based person ReID system using the MEVID dataset, comparing ResNet-50, OSNet, and TransReID architectures.
+MEVID person re-identification experiments comparing CNN architectures under camera and clothing changes.
 
-## Architecture Overview
-Refer to the system architecture diagram for an overview of the pipeline components.
+**Technologies:** Python · PyTorch · FastReID · Streamlit
 
-## Features
-- **3 ReID architectures**: ResNet-50-IBN, OSNet-x1.0, TransReID ViT-Base
-- **3 evaluation protocols**: General, Same-Outfit, Cross-Outfit
-- **FAISS**: Vector similarity search for fast retrieval
-- **YOLOv8 + DeepSORT**: Real-time multi-object tracking
-- **Dual-mode Streamlit demo**: Features Gallery Search and Live Detection modes
+## What is included
 
-## Installation
+- BoT-ResNet50, AGW-ResNet50-IBN and OSNet/MGN research configurations.
+- General, same-outfit and cross-outfit evaluation protocols.
+- Gallery indexing, similarity search, detection and tracking modules.
+
+## Setup
 
 ```bash
-# Install core dependencies
+python3.11 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
-
-# Install training dependencies
-pip install -r requirements-train.txt
-
-# Note: fast-reid is installed from source separately
 ```
 
-## Project Structure
+## Run
 
-```
-MultiCameraTracking/
-├── data/           # Dataset files
-├── weights/        # Model checkpoints
-├── results/        # Experiment outputs
-└── fast-reid/      # Cloned fast-reid repository
-```
-
-## Dataset
-This project uses the MEVID dataset. Please follow the instructions provided by the authors to download the dataset and place it in the `data/` directory.
-
-## Usage
-
-### Training
 ```bash
-# Run training script (placeholder)
+streamlit run app/app.py
 ```
 
-### Evaluation
-```bash
-# Run evaluation script (placeholder)
-```
+The MEVID dataset, pretrained weights and training dependencies must be supplied separately. See docs/original_readme.md for training and evaluation details. This is team research; the inherited documentation records the wider comparison.
 
-### Demo
-```bash
-# Run Streamlit demo
-streamlit run app.py
-```
+## Source and credits
 
-## Citation
-```bibtex
-# Placeholder for MEVID paper citation
-```
+This portfolio snapshot preserves work from the following repositories. Existing author credits, citations and license files are retained; team and upstream code are not presented as solely authored work.
 
-## License
-MIT License
+- https://github.com/Quang0309/MultiCameraTracking
+
+[Portfolio index](https://github.com/Qimatxbase/engineering_portfolio)
