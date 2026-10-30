@@ -63,7 +63,7 @@ MultiCameraTracking/
 │   ├── train.py                    # Unified FastReID training entry point
 │   ├── evaluate.py                 # Standard model checkpoint evaluation script
 │   ├── eval_mevid_protocols.py     # Multi-protocol (General / Same / Cross) evaluation
-│   ├── agw_resnet_ibn_25740743.ipynb # AGW-ResNet50-IBN training & evaluation notebook
+│   ├── agw_resnet50_ibn_kaggle.ipynb # AGW-ResNet50-IBN training & evaluation notebook
 │   └── generate_report_plots.py    # Generates loss curves & protocol evaluation plots
 ├── results/
 │   ├── loss_curves.png             # 22-epoch training loss dynamics (AGW-ResNet50-IBN)

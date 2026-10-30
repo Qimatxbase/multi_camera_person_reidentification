@@ -4,6 +4,18 @@ MEVID person re-identification experiments comparing CNN architectures under cam
 
 **Technologies:** Python · PyTorch · FastReID · Streamlit
 
+## Academic context and contribution
+
+Created for **UTS 42177, Team 8** as a comparative person re-identification research project.
+
+The documented contribution split is:
+
+- **Khanh Hoang Nguyen:** OSNet data preparation, training, Rank-1 and mAP evaluation, and integration.
+- **Quang:** the shared framework, data loaders and AGW-ResNet50-IBN work.
+- **Hung:** BoT-ResNet50 work.
+
+The repository preserves both the plain OSNet workflow and a distinct OSNet-MGN experiment. Broader comparison and application components retain their team and upstream attribution.
+
 ## What is included
 
 - BoT-ResNet50, AGW-ResNet50-IBN and OSNet/MGN research configurations.
