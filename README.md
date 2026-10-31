@@ -49,5 +49,3 @@ The MEVID dataset, pretrained weights and training dependencies must be supplied
 This portfolio snapshot preserves work from the following repositories. Existing author credits, citations and license files are retained; team and upstream code are not presented as solely authored work.
 
 - https://github.com/Quang0309/MultiCameraTracking
-
-[Portfolio index](https://github.com/Qimatxbase/engineering_portfolio)
